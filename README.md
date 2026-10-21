@@ -9,7 +9,8 @@ Basado en los dibujos del "Mostro Cornio".
 - Pintarlo y ponerle nombre.
 - Arrancar desde los Mostros clásicos o los Mostros mitológicos (con su ficha y su historia).
 - Guardar los favoritos en "Mi colección" (queda guardada en ese dispositivo).
-- Ver las características de cada parte.
+- Ver las características de cada parte (etiquetas arriba y abajo del mostro).
+- Imprimirlo o guardarlo como PDF desde el menú.
 - Compartir el mostro: en el teléfono abre el menú de compartir (WhatsApp, etc.); en la compu ofrece WhatsApp o copiar el link.
   El link abre exactamente el mismo mostro.
 

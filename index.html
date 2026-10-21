@@ -40,7 +40,7 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
 .mi svg{width:26px;height:26px;flex:none}
 .mi[aria-pressed="true"]{background:var(--sun)}
 .mi .st{margin-left:auto;font-size:16px;color:var(--ink-soft)}
-.tools{position:absolute;z-index:39;top:10px;left:10px;display:flex;flex-direction:column;gap:8px}
+.tools{position:absolute;z-index:39;top:10px;left:10px;display:flex;flex-direction:row;gap:8px}
 .tool{width:42px;height:42px;border:3px solid var(--ink);border-radius:12px;background:var(--paper);box-shadow:3px 3px 0 var(--ink);display:grid;place-items:center;padding:0}
 .tool svg{width:24px;height:24px}
 .tool[aria-pressed="true"]{background:var(--sun)}
@@ -51,7 +51,7 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
 .rings{position:absolute;top:-15px;left:14px;right:14px;display:flex;justify-content:space-between;pointer-events:none}
 .rings i{width:10px;height:26px;border:3px solid var(--ink);border-radius:8px}
 
-.cover{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;padding-inline:50px;min-height:46px;justify-content:center;min-width:0;max-width:100%}
+.cover{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;padding-inline:6px;padding-top:40px;min-height:46px;justify-content:center;min-width:0;max-width:100%}
 .line1{display:flex;align-items:baseline;justify-content:center;gap:8px;white-space:nowrap;font-family:var(--display);font-size:22px;line-height:1.1;
   color:var(--tfill,var(--paper));-webkit-text-stroke:1.2px var(--ink);paint-order:stroke fill;border-bottom:1px solid var(--rule);padding-inline:10px}
 .line1 .las{font-size:.72em;letter-spacing:.12em}
@@ -150,7 +150,7 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
 @media (min-width:900px){
   .app{max-width:1240px;flex-direction:row;gap:26px;padding-top:max(14px,env(safe-area-inset-top,0px));padding-bottom:max(18px,env(safe-area-inset-bottom,0px))}
   .page{flex:1 1 52%;min-width:0;padding:26px 14px 14px}
-  .cover{padding-inline:56px}
+  .cover{padding-inline:10px;padding-top:36px}
   .line1{font-size:28px}
   #rand{width:88px;height:88px} #rand svg{width:48px;height:48px}
   .round{width:64px;height:64px}
@@ -166,6 +166,17 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
   .opt[aria-pressed="true"]::after{width:30px;height:30px;font-size:16px;top:-10px;right:-8px}
 }
 @media (max-height:700px){ .opt svg{height:54px} .tab svg{height:28px} #rand{width:66px;height:66px} .round{width:50px;height:50px} #tName{font-size:34px} }
+#printArea{display:none}
+@media print{
+  @page{size:A4 portrait;margin:14mm}
+  html,body{height:auto!important;overflow:visible!important;background:#fff!important}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:flex!important;flex-direction:column;align-items:center;gap:6mm;color:#24213a}
+  #printArea .p-name{font-family:var(--display);font-size:40pt;line-height:1.1;text-align:center;margin:0}
+  #printArea svg{width:100%;height:auto;max-height:225mm}
+  #printArea .bob{animation:none!important}
+  #printArea .p-foot{font-family:var(--script);font-size:14pt;margin:0}
+}
 @media (prefers-reduced-motion:reduce){.bob,.pop .bob,.shake .bob{animation:none}}
 </style>
 
@@ -204,6 +215,7 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
     <nav class="menu" id="menu" hidden aria-label="Menú">
     <button class="mi" id="presetsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2" fill="#f0cf55" stroke="#24213a" stroke-width="1.8"/><rect x="13" y="3" width="8" height="8" rx="2" fill="#a6cbe0" stroke="#24213a" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="2" fill="#e8b0c0" stroke="#24213a" stroke-width="1.8"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#b9c98f" stroke="#24213a" stroke-width="1.8"/></svg>Mostros clásicos</button>
     <button class="mi" id="legBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.6 9 L16.2 13.5 L18 20.4 L12 16.6 L6 20.4 L7.8 13.5 L2.4 9 L9.4 8.6 Z" fill="#f0cf55" stroke="#24213a" stroke-width="1.6" stroke-linejoin="round"/></svg>Mostros mitológicos</button>
+    <button class="mi" id="printBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="6" fill="#fffaf0" stroke="#24213a" stroke-width="1.8"/><rect x="3" y="9" width="18" height="8" rx="2" fill="#a6cbe0" stroke="#24213a" stroke-width="1.8"/><rect x="7" y="14" width="10" height="7" fill="#fffaf0" stroke="#24213a" stroke-width="1.8"/></svg>Imprimir / PDF</button>
     <button class="mi" id="collBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 C5 15 2 11 4 7 C6 3 10 4 12 7 C14 4 18 3 20 7 C22 11 19 15 12 20Z" fill="#c8553d" stroke="#24213a" stroke-width="1.8" stroke-linejoin="round"/></svg>Mi colección</button>
   </nav>
     <div class="tools">
@@ -270,6 +282,7 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
   </div>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div id="printArea" aria-hidden="true"></div>
 
 <script>
 (function(){
@@ -474,16 +487,18 @@ const get = (cat,id) => (PARTS[cat].opts.find(o=>o.id===id) || PARTS[cat].opts[0
 let uid = 0;
 /* ---------- etiquetas con flechas (como la lámina del cuaderno) ---------- */
 const CATWORD = {horn:'CUERNO',ears:'OREJAS',eyes:'OJOS',mouth:'BOCA',body:'CUERPO',wings:'ALAS',tail:'COLA',feet:'PATAS'};
+// Etiquetas en dos filas (arriba y abajo del mostro) para no ocupar ancho
 const LAB = {
-  horn: {x:300,y:34, a:'start', t:[161,62], o:{doble:[186,80],antenas:[178,40],corona:[176,72]}},
-  ears: {x:-22,y:78, a:'end',   t:[96,100]},
-  eyes: {x:305,y:128,a:'start', t:[209,150], o:{caracol:[202,52],cuatro:[214,150]}},
-  wings:{x:-22,y:196,a:'end',   t:[26,206], o:{globos:[20,118],plumas:[18,190],abeja:[22,170]}},
-  body: {x:305,y:250,a:'start', t:[216,252]},
-  feet: {x:-22,y:304,a:'end',   t:[108,320]},
-  tail: {x:305,y:304,a:'start', t:[262,248], o:{zorro:[272,226],fuego:[262,212],serpiente:[244,204],dragon:[276,226]}},
-  mouth:{x:150,y:374,a:'middle',t:[150,232], o:{babosa:[150,286],trompa:[152,288],chupete:[150,254]}}
+  wings:{x:6, row:'top', t:[40,214], o:{globos:[20,118],plumas:[18,190],abeja:[22,170]}},
+  ears: {x:104,row:'top', t:[96,100]},
+  horn: {x:202,row:'top', t:[161,62], o:{doble:[186,80],antenas:[178,40],corona:[176,72]}},
+  eyes: {x:300,row:'top', t:[209,150], o:{caracol:[202,52],cuatro:[214,150]}},
+  feet: {x:6, row:'bot', t:[108,320]},
+  mouth:{x:104,row:'bot', t:[150,232], o:{babosa:[150,286],trompa:[152,288],chupete:[150,254]}},
+  body: {x:202,row:'bot', t:[216,262]},
+  tail: {x:300,row:'bot', t:[262,248], o:{zorro:[272,226],fuego:[262,212],serpiente:[244,204],dragon:[276,226]}}
 };
+const LAB_TOP = -50, LAB_BOT = 366;
 const NONE = ['ninguno','ninguna','flotando'];
 function arrowPath(x1,y1,x2,y2){
   const cx=(x1+x2)/2+(y2-y1)*.22, cy=(y1+y2)/2-(x2-x1)*.12;
@@ -496,11 +511,18 @@ function labelsLayer(st){
   for(const k of Object.keys(LAB)){
     const id=st[k]; if(NONE.includes(id)) continue;
     const L=LAB[k], t=(L.o&&L.o[id])||L.t, opt=PARTS[k].opts.find(o=>o.id===id); if(!opt) continue;
-    const sx = L.a==='end'? L.x+8 : L.a==='start'? L.x-8 : L.x;
-    const sy = L.a==='middle'? L.y-24 : L.y-6;
-    out+=`<path d="${arrowPath(sx,sy,t[0],t[1])}" fill="none" stroke="${INK}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>`;
-    out+=`<text x="${L.x}" y="${L.y}" text-anchor="${L.a}" font-family="Gochi Hand, Patrick Hand, sans-serif" font-size="21" fill="${INK}" letter-spacing="1">${CATWORD[k]}</text>`;
-    out+=`<text x="${L.x}" y="${L.y+21}" text-anchor="${L.a}" font-family="Caveat, Patrick Hand, cursive" font-weight="700" font-size="${Math.min(23, Math.round(23*12/Math.max(12,opt.label.length)))}" fill="${INK}">${opt.label.toLowerCase()}</text>`;
+    const top = L.row==='top', y = top ? LAB_TOP : LAB_BOT;
+    // nombre largo: dos renglones cortando en el espacio más cercano al medio
+    const lab = opt.label.toLowerCase(); let lines=[lab];
+    if(lab.length>11 && lab.includes(' ')){
+      let best=-1; for(let i=0;i<lab.length;i++) if(lab[i]===' ' && (best<0 || Math.abs(i-lab.length/2)<Math.abs(best-lab.length/2))) best=i;
+      lines=[lab.slice(0,best), lab.slice(best+1)];
+    }
+    const longest=Math.max(...lines.map(l=>l.length)), fs=Math.min(19, Math.round(19*10/Math.max(10,longest)));
+    const sy = top ? y+14+lines.length*fs : y-24;
+    out+=`<path d="${arrowPath(L.x,sy,t[0],t[1])}" fill="none" stroke="${INK}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>`;
+    out+=`<text x="${L.x}" y="${y}" text-anchor="middle" font-family="Gochi Hand, Patrick Hand, sans-serif" font-size="18" fill="${INK}" letter-spacing="1">${CATWORD[k]}</text>`;
+    lines.forEach((ln,i)=>{ out+=`<text x="${L.x}" y="${y+19+i*(fs-1)}" text-anchor="middle" font-family="Caveat, Patrick Hand, cursive" font-weight="700" font-size="${fs}" fill="${INK}">${ln}</text>`; });
   }
   return `<g filter="url(#wob)">${out}</g>`;
 }
@@ -518,7 +540,7 @@ function monster(st, viewBox, opts={}){
   let pen = opts.shadow===false ? `<g filter="url(#wob)">${inner}</g>` : `<g filter="url(#wob2)" opacity=".5">${inner}</g><g filter="url(#wob)">${inner}</g>`;
   if(col.mono) pen = `<g filter="url(#mono)">${pen}</g>`;
   const labels = opts.labels ? labelsLayer(st) : '';
-  const vb = viewBox || (opts.labels ? '-150 0 600 400' : '-12 2 324 342');
+  const vb = viewBox || (opts.labels ? '-52 -72 404 478' : '-12 2 324 342');
   return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}<g filter="url(#wob)">${shadow}</g>${labels}<g class="bob">${pen}</g></svg>`;
 }
 
@@ -699,6 +721,12 @@ $('nameInput').addEventListener('blur', ()=>setTimeout(saveName, 120));
 
 /* ---------- compartir (link con el mostro adentro) ---------- */
 const SHARE_URL = 'https://claude.ai/artifact/854EQcgPAptEhgYxpNANEM';
+$('printBtn').addEventListener('click', ()=>{
+  setMenu(false);
+  const n = nameOf(state).n;
+  $('printArea').innerHTML = `<p class="p-name">${n.replace(/</g,'&lt;')}</p>${monster(state, null, {labels:showLabels})}<p class="p-foot">Mostros Mix</p>`;
+  setTimeout(()=>{ try{ window.print(); }catch(e){ toast('No se pudo imprimir desde acá'); } }, 120);
+});
 // Link a compartir: si la app está publicada en su propio sitio (ej. GitHub Pages) usa esa dirección.
 function shareLink(){
   const here = location.protocol.startsWith('http') && !/claude\.(ai|site)|claudeusercontent/.test(location.hostname);
