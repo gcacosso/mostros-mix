@@ -1,0 +1,794 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mostros Mix</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Caveat:wght@600;700&family=Gochi+Hand&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: pantalla fija tipo juego. Celular: libreta arriba (menú flotante adentro) + tira de partes y carrusel abajo. Pantalla ancha: libreta a la izquierda y panel de partes a la derecha */
+:root{
+  --kraft:#cfcabe;
+  --paper:#e9e4d8;
+  --ink:#24213a;
+  --ink-soft:#67627a;
+  --rule:#b7b1a4;
+  --sun:#f0cf55;
+  --berry:#c8553d;
+  --wa:#8fd3a0;
+  --display:"Alfa Slab One","Rockwell","Georgia",serif;
+  --script:"Caveat","Segoe Print","Comic Sans MS",cursive;
+  --hand:"Patrick Hand","Comic Sans MS","Chalkboard SE",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;background:var(--kraft);color:var(--ink)}
+body{margin:0;overflow:hidden;font-family:var(--hand);font-size:18px;line-height:1.25;
+  background-image:radial-gradient(color-mix(in srgb,var(--ink) 13%,transparent) 1.2px,transparent 1.4px);background-size:22px 22px}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offset:2px}
+
+.app{height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;
+  padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));padding-top:max(6px,env(safe-area-inset-top,0px));padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+.burger{position:absolute;z-index:41;top:10px;right:10px;width:42px;height:42px;border:3px solid var(--ink);border-radius:12px;background:var(--paper);box-shadow:3px 3px 0 var(--ink);display:grid;place-items:center;padding:0}
+.burger svg{width:24px;height:24px}
+.burger[aria-expanded="true"]{background:var(--sun);transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+
+.menu{position:absolute;z-index:40;top:60px;right:10px;
+  background:var(--paper);border:3px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:240px}
+.mi{display:flex;align-items:center;gap:12px;text-align:left;font-size:21px;padding:10px 14px;border:2px solid var(--ink);border-radius:10px;background:#fffaf0}
+.mi svg{width:26px;height:26px;flex:none}
+.mi[aria-pressed="true"]{background:var(--sun)}
+.mi .st{margin-left:auto;font-size:16px;color:var(--ink-soft)}
+.tools{position:absolute;z-index:39;top:10px;left:10px;display:flex;flex-direction:column;gap:8px}
+.tool{width:42px;height:42px;border:3px solid var(--ink);border-radius:12px;background:var(--paper);box-shadow:3px 3px 0 var(--ink);display:grid;place-items:center;padding:0}
+.tool svg{width:24px;height:24px}
+.tool[aria-pressed="true"]{background:var(--sun)}
+.scrim{position:fixed;inset:0;z-index:35;background:transparent}
+
+.page{flex:1;min-height:0;position:relative;margin-top:18px;background:var(--paper);border:3px solid var(--ink);border-radius:8px;
+  box-shadow:5px 5px 0 var(--ink);padding:20px 8px 8px;display:flex;flex-direction:column}
+.rings{position:absolute;top:-15px;left:14px;right:14px;display:flex;justify-content:space-between;pointer-events:none}
+.rings i{width:10px;height:26px;border:3px solid var(--ink);border-radius:8px}
+
+.cover{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;padding-inline:50px;min-height:46px;justify-content:center;min-width:0;max-width:100%}
+.line1{display:flex;align-items:baseline;justify-content:center;gap:8px;white-space:nowrap;font-family:var(--display);font-size:22px;line-height:1.1;
+  color:var(--tfill,var(--paper));-webkit-text-stroke:1.2px var(--ink);paint-order:stroke fill;border-bottom:1px solid var(--rule);padding-inline:10px}
+.line1 .las{font-size:.72em;letter-spacing:.12em}
+.line1 .del{font-family:var(--script);font-weight:700;font-size:1.15em;color:var(--ink);-webkit-text-stroke:0;transform:rotate(-3deg);display:inline-block}
+.ttl{display:inline-block}
+.ttl span{display:inline-block}
+.namebox{display:flex;align-items:center;justify-content:center;gap:6px;max-width:100%;width:100%;min-width:0}
+#tName{flex:0 1 auto;min-width:0;max-width:none;white-space:nowrap;overflow:hidden;font-family:var(--display);font-weight:400;font-size:40px;line-height:1.15;
+  color:var(--tfill,var(--paper));-webkit-text-stroke:1.6px var(--ink);paint-order:stroke fill;text-shadow:-1.4px 1.1px 0 color-mix(in srgb,var(--ink) 30%,transparent);padding-inline:2px}
+.cover.rb .line1,.cover.rb #tName{background:linear-gradient(90deg,#e8a0a0,#ecc58a,#e6dc8e,#b3d39a,#a6cbe0,#c4b0dc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pencil{flex:none;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);display:grid;place-items:center;box-shadow:2px 2px 0 var(--ink);padding:0}
+.pencil svg{width:20px;height:20px}
+.nameform{display:flex;gap:8px;width:100%;margin-block:4px}
+.nameform input{flex:1;min-width:0;font-family:var(--display);font-size:22px;padding:6px 10px;border:3px solid var(--ink);border-radius:12px;background:#fffaf0;color:var(--ink)}
+.nameform .cnt{align-self:center;font-size:15px;color:var(--ink-soft);font-variant-numeric:tabular-nums;flex:none}
+.nameform .cnt.full{color:var(--berry);font-weight:700}
+.nameform button{border:3px solid var(--ink);border-radius:12px;background:var(--sun);font-family:var(--display);font-size:18px;padding:0 14px}
+
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.stage svg{width:100%;height:100%;overflow:visible}
+.bob{animation:bob 2.8s ease-in-out infinite;transform-origin:150px 340px}
+@keyframes bob{50%{transform:translateY(-5px) rotate(-1deg)}}
+.pop .bob{animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{0%{transform:scale(.75,1.18)}60%{transform:scale(1.1,.92)}100%{transform:scale(1)}}
+.shake .bob{animation:shake .14s linear infinite}
+@keyframes shake{25%{transform:translateX(-6px) rotate(-3deg)}75%{transform:translateX(6px) rotate(3deg)}}
+
+.actions{flex:none;display:flex;align-items:center;justify-content:center;gap:22px;padding-top:4px}
+.round{width:58px;height:58px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);box-shadow:3px 3px 0 var(--ink);display:grid;place-items:center;padding:0;color:var(--ink);text-decoration:none}
+.round svg{width:30px;height:30px}
+.round:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+#rand{width:78px;height:78px;background:var(--sun);box-shadow:4px 4px 0 var(--ink)}
+#rand svg{width:42px;height:42px}
+.wa{background:var(--wa)}
+.sharebox{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:rgba(36,33,58,.35);padding:16px}
+.sb-card{position:relative;background:var(--paper);border:3px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:18px 18px 16px;display:grid;gap:10px;width:min(300px,100%)}
+.sb-t{margin:0 0 4px;font-family:var(--display);font-size:24px;text-align:center}
+.sb-btn{display:block;text-align:center;text-decoration:none;color:var(--ink);font:inherit;font-size:18px;padding:10px;border:3px solid var(--ink);border-radius:12px;background:#fffaf0;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.sb-wa{background:var(--wa)}
+.sb-x{position:absolute;top:6px;right:8px;border:0;background:none;font-size:18px;cursor:pointer;color:var(--ink)}
+
+.picker{flex:none;display:flex;flex-direction:column;gap:6px;padding-top:12px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 8px 2px;scroll-snap-type:x proximity;scrollbar-width:none}
+.tabs::-webkit-scrollbar,.opts::-webkit-scrollbar{display:none}
+.tab{flex:none;width:70px;scroll-snap-align:start;border:3px solid var(--ink);border-radius:12px;background:var(--paper);padding:3px 2px 2px;
+  display:flex;flex-direction:column;align-items:center;gap:0;box-shadow:2px 2px 0 var(--ink);font-size:15px;line-height:1.1}
+.tab svg{width:100%;height:34px}
+.tab[aria-selected="true"]{background:var(--sun)}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);margin:2px 0}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.opts{display:flex;gap:10px;overflow-x:auto;padding:6px 4px 10px 2px;scroll-snap-type:x proximity;scrollbar-width:none}
+.opt{flex:none;width:94px;scroll-snap-align:start;position:relative;border:3px solid var(--ink);border-radius:14px;background:var(--paper);padding:4px 3px 4px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;line-height:1.05;text-align:center;box-shadow:2px 2px 0 var(--ink)}
+.opt svg{width:100%;height:66px}
+.opt span{min-height:2.1em;display:flex;align-items:center}
+.opt[aria-pressed="true"]{background:#fffaf0;border-color:var(--berry);box-shadow:2px 2px 0 var(--ink)}
+.opt[aria-pressed="true"]::after{content:"✓";position:absolute;top:-8px;right:-6px;width:24px;height:24px;border-radius:50%;background:var(--berry);color:#fff;border:2px solid var(--ink);font-family:var(--display);font-size:13px;display:grid;place-items:center}
+
+.sheet{position:fixed;inset:0;z-index:50;display:grid;place-items:end center;background:color-mix(in srgb,var(--ink) 50%,transparent);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.sheet-card{background:var(--paper);border:3px solid var(--ink);border-radius:16px;box-shadow:5px 5px 0 var(--ink);width:100%;max-width:560px;max-height:100%;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheet-head h2{margin:0;font-family:var(--display);font-weight:400;font-size:22px;line-height:1.1}
+.pill{border:3px solid var(--ink);background:#fffaf0;border-radius:40px;padding:5px 14px;box-shadow:2px 2px 0 var(--ink);font-size:17px;flex:none}
+.presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.preset{border:3px solid var(--ink);border-radius:12px;background:#fffaf0;padding:4px 3px 6px;display:flex;flex-direction:column;align-items:center;gap:0;box-shadow:2px 2px 0 var(--ink);font-size:15px;line-height:1.1;text-align:center}
+.preset svg{width:100%;height:96px}
+.preset small{font-size:12px;color:var(--ink-soft)}
+.info{font-family:var(--display);font-size:20px;line-height:1;color:var(--ink);background:var(--sun)}
+.leg-intro{margin:0;color:var(--ink-soft);font-size:17px}
+.legends{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.legend{border:3px solid var(--ink);border-radius:12px;background:#fffaf0;padding:6px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:2px 2px 0 var(--ink);text-align:center;line-height:1.1}
+.legend svg{width:100%;height:110px}
+.legend b{font-family:var(--display);font-weight:400;font-size:18px}
+.legend small{font-size:14px;color:var(--ink-soft)}
+.ficha{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.ficha-art{background:var(--paper);border-radius:10px}
+.ficha-art svg{width:100%;height:200px}
+.ficha-body{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.ficha-body h2{margin:0;font-family:var(--display);font-weight:400;font-size:28px;line-height:1.05}
+.ficha-myth{margin:0;font-family:var(--script);font-weight:700;font-size:24px;line-height:1}
+.ficha-origin{margin:0;display:flex;align-items:center;gap:6px;font-size:17px;color:var(--ink-soft)}
+.ficha-origin svg{width:20px;height:20px;flex:none}
+.ficha-text{margin:4px 0 6px;font-size:20px;line-height:1.3;max-width:42ch}
+#fichaClose{background:var(--sun);font-size:19px}
+@media (min-width:640px){ .legends{grid-template-columns:repeat(4,minmax(0,1fr))} .ficha{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:center} }
+.shelf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-top:8px}
+.mini{position:relative;border:3px solid var(--ink);border-radius:12px;background:#fffaf0;padding:4px;display:flex;flex-direction:column;align-items:center;font-size:14px;line-height:1.05;text-align:center;min-width:0}
+.mini > button:first-child{border:0;background:none;padding:0;width:100%}
+.mini svg{width:100%;height:96px}
+.mini span{overflow-wrap:anywhere}
+.mini .del{position:absolute;top:-10px;right:-8px;width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);font-size:15px;line-height:1;padding:0}
+.empty{grid-column:1/-1;color:var(--ink-soft);margin:0}
+.toast{position:fixed;z-index:60;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);background:var(--ink);color:var(--paper);border-radius:30px;padding:10px 18px;font-size:18px;white-space:nowrap}
+
+@media (min-width:900px){
+  .app{max-width:1240px;flex-direction:row;gap:26px;padding-top:max(14px,env(safe-area-inset-top,0px));padding-bottom:max(18px,env(safe-area-inset-bottom,0px))}
+  .page{flex:1 1 52%;min-width:0;padding:26px 14px 14px}
+  .cover{padding-inline:56px}
+  .line1{font-size:28px}
+  #rand{width:88px;height:88px} #rand svg{width:48px;height:48px}
+  .round{width:64px;height:64px}
+  .picker{flex:1 1 48%;min-width:0;min-height:0;margin-top:18px;padding-top:0;overflow-y:auto;gap:14px;padding-right:6px}
+  .sheet{place-items:center}
+  .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible;gap:10px;padding:2px 4px 4px 2px}
+  .tab{width:auto;font-size:18px;padding:6px 4px 4px;box-shadow:3px 3px 0 var(--ink)}
+  .tab svg{height:52px}
+  .sw{width:44px;height:44px}
+  .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));overflow:visible;gap:12px;padding:8px 6px 12px 2px}
+  .opt{width:auto;font-size:17px;padding:6px 4px;box-shadow:3px 3px 0 var(--ink)}
+  .opt svg{height:96px}
+  .opt[aria-pressed="true"]::after{width:30px;height:30px;font-size:16px;top:-10px;right:-8px}
+}
+@media (max-height:700px){ .opt svg{height:54px} .tab svg{height:28px} #rand{width:66px;height:66px} .round{width:50px;height:50px} #tName{font-size:34px} }
+@media (prefers-reduced-motion:reduce){.bob,.pop .bob,.shake .bob{animation:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="wob" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7"/>
+      <feDisplacementMap in="SourceGraphic" scale="3"/>
+    </filter>
+    <filter id="wob2" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="2"/>
+      <feDisplacementMap in="SourceGraphic" scale="5"/>
+    </filter>
+    <filter id="mono" color-interpolation-filters="sRGB">
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncR type="table" tableValues="0 0.07 0.72 0.9 0.94 0.96"/><feFuncG type="table" tableValues="0 0.07 0.7 0.88 0.92 0.94"/><feFuncB type="table" tableValues="0 0.1 0.66 0.83 0.87 0.89"/></feComponentTransfer>
+    </filter>
+    <filter id="paper" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="5" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="1.6" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="9" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0.22 0" result="gg"/>
+      <feComposite in="gg" in2="d" operator="in" result="gr"/>
+      <feMerge><feMergeNode in="d"/><feMergeNode in="gr"/></feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<div class="app">
+  <div class="scrim" id="scrim" hidden></div>
+
+  <section class="page" aria-label="Tu mostro">
+    <button class="burger" id="burger" aria-label="Menú" aria-expanded="false" aria-controls="menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6 H21 M3 12 H21 M3 18 H21" stroke="#24213a" stroke-width="2.6" stroke-linecap="round"/></svg>
+    </button>
+    <nav class="menu" id="menu" hidden aria-label="Menú">
+    <button class="mi" id="presetsBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2" fill="#f0cf55" stroke="#24213a" stroke-width="1.8"/><rect x="13" y="3" width="8" height="8" rx="2" fill="#a6cbe0" stroke="#24213a" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="2" fill="#e8b0c0" stroke="#24213a" stroke-width="1.8"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#b9c98f" stroke="#24213a" stroke-width="1.8"/></svg>Mostros clásicos</button>
+    <button class="mi" id="legBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.6 9 L16.2 13.5 L18 20.4 L12 16.6 L6 20.4 L7.8 13.5 L2.4 9 L9.4 8.6 Z" fill="#f0cf55" stroke="#24213a" stroke-width="1.6" stroke-linejoin="round"/></svg>Mostros mitológicos</button>
+    <button class="mi" id="collBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 C5 15 2 11 4 7 C6 3 10 4 12 7 C14 4 18 3 20 7 C22 11 19 15 12 20Z" fill="#c8553d" stroke="#24213a" stroke-width="1.8" stroke-linejoin="round"/></svg>Mi colección</button>
+  </nav>
+    <div class="tools">
+      <button class="tool" id="sound" aria-pressed="true" aria-label="Sonido"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#fffaf0" stroke="#24213a" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 9 Q18 12 16 15 M18.5 7 Q22 12 18.5 17" fill="none" stroke="#24213a" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="tool" id="labels" aria-pressed="false" aria-label="Características"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4 H12 L21 13 L13 21 L3 11 Z" fill="#fffaf0" stroke="#24213a" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8" cy="9" r="1.8" fill="#24213a"/></svg></button>
+    </div>
+    <div class="rings" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="cover" aria-live="polite">
+      <div class="namebox" id="nameBox"><div id="tName">Cornio</div><button class="pencil" id="editName" aria-label="Cambiar el nombre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L5 15 L16 4 L20 8 L9 19 Z M14 6 L18 10" fill="#f0cf55" stroke="#24213a" stroke-width="1.8" stroke-linejoin="round"/></svg></button><button class="pencil info" id="infoBtn" hidden aria-label="¿Quién es este mostro?">i</button></div>
+      <form class="nameform" id="nameForm" hidden><input id="nameInput" maxlength="20" autocomplete="off" aria-label="Nombre del mostro (hasta 20 letras)" aria-describedby="nameCnt"><span class="cnt" id="nameCnt">0/20</span><button type="submit">Listo</button></form>
+    </div>
+    <div class="stage" id="stage"></div>
+    <div class="actions">
+      <button class="round" id="save" aria-label="Guardar en mi colección"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 40 C10 30 4 22 8 13 C12 5 21 7 24 14 C27 7 36 5 40 13 C44 22 38 30 24 40Z" fill="#c8553d" stroke="#24213a" stroke-width="3.5" stroke-linejoin="round"/></svg></button>
+      <button class="round" id="rand" aria-label="Mezcla loca"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="5" width="38" height="38" rx="9" fill="#fffaf0" stroke="#24213a" stroke-width="3.5"/><circle cx="15" cy="15" r="4" fill="#24213a"/><circle cx="33" cy="15" r="4" fill="#24213a"/><circle cx="24" cy="24" r="4" fill="#24213a"/><circle cx="15" cy="33" r="4" fill="#24213a"/><circle cx="33" cy="33" r="4" fill="#24213a"/></svg></button>
+      <button class="round wa" id="share" aria-label="Compartir"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M16 22 L31 14 M16 26 L31 34" stroke="#24213a" stroke-width="3" stroke-linecap="round"/><circle cx="13" cy="24" r="5.5" fill="#fffaf0" stroke="#24213a" stroke-width="3"/><circle cx="34" cy="12.5" r="5.5" fill="#fffaf0" stroke="#24213a" stroke-width="3"/><circle cx="34" cy="35.5" r="5.5" fill="#fffaf0" stroke="#24213a" stroke-width="3"/></svg></button>
+    </div>
+  </section>
+
+  <section class="picker" aria-label="Elegí las partes">
+    <h2 class="vh" id="optTitle">Cuerno</h2>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="opts" id="opts"></div>
+  </section>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head"><h2 id="sheetTitle">Mostros clásicos</h2><button class="pill" id="sheetClose">Cerrar</button></div>
+    <div class="presets" id="presets"></div>
+  </div>
+</div>
+<div class="sheet" id="legSheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="legTitle">
+    <div class="sheet-head"><h2 id="legTitle">Mostros mitológicos</h2><button class="pill" id="legClose">Cerrar</button></div>
+    <p class="leg-intro">Mostros inspirados en criaturas de cuentos y mitos de todo el mundo.</p>
+    <div class="legends" id="legends"></div>
+  </div>
+</div>
+<div class="sheet" id="fichaSheet" hidden>
+  <div class="sheet-card ficha" role="dialog" aria-modal="true" aria-labelledby="fichaName">
+    <div class="ficha-art" id="fichaArt"></div>
+    <div class="ficha-body">
+      <h2 id="fichaName">Kirinito</h2>
+      <p class="ficha-myth" id="fichaMyth">Inspirado en el Kirin</p>
+      <p class="ficha-origin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22 C12 22 5 14 5 9 A7 7 0 0 1 19 9 C19 14 12 22 12 22 Z" fill="#c8553d" stroke="#24213a" stroke-width="1.6"/><circle cx="12" cy="9" r="2.6" fill="#fffaf0"/></svg><span id="fichaOrigin">China</span></p>
+      <p class="ficha-text" id="fichaText"></p>
+      <button class="pill" id="fichaClose">¡A jugar!</button>
+    </div>
+  </div>
+</div>
+<div class="sheet" id="collSheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="collTitle">
+    <div class="sheet-head"><h2 id="collTitle">Mi colección</h2><button class="pill" id="collClose">Cerrar</button></div>
+    <div class="shelf" id="shelf"></div>
+  </div>
+</div>
+<div class="sharebox" id="shareBox" hidden role="dialog" aria-label="Compartir">
+  <div class="sb-card">
+    <p class="sb-t">Compartir mostro</p>
+    <a class="sb-btn sb-wa" id="sbWa" href="https://wa.me/" target="_blank" rel="noopener">WhatsApp</a>
+    <button class="sb-btn" id="sbCopy">Copiar link</button>
+    <button class="sb-x" id="sbClose" aria-label="Cerrar">✕</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+/* =========================================================
+   ESTILO: libro ilustrado — tinta fina marrón, rayitas, acuarela
+   ========================================================= */
+const INK = '#24213a', K = 0.85;
+const BONE = '#f6efe0', MOUTH = '#5a2a32', TONGUE = '#e88a9a', WATER = '#bcdcec';
+const s = (w=3.5) => `stroke="${INK}" stroke-width="${(w*K).toFixed(2)}" stroke-linejoin="round" stroke-linecap="round"`;
+const mirror = x => x + `<g transform="translate(300,0) scale(-1,1)">${x}</g>`;
+const tube = (d,col,w=14) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${w-5}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const shine = (cx,cy,r) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/>`;
+function star(cx,cy,r,fill){
+  let p=[]; for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r; p.push((cx+Math.cos(a)*rr).toFixed(1)+','+(cy+Math.sin(a)*rr).toFixed(1));}
+  return `<polygon points="${p.join(' ')}" fill="${fill}" ${s(2)}/>`;
+}
+
+const COLORS = [
+  {id:'lapicera', n:'Sin color', c:'#ece7db', d:'#cbc4b5', mono:true},
+  {id:'salvia', n:'Salvia', c:'#b9c98f', d:'#7f9455'},
+  {id:'lapiz', n:'Lápiz', c:'#d9d1c1', d:'#a8997f'},
+  {id:'terracota', n:'Terracota', c:'#d9a07a', d:'#a8643f'},
+  {id:'rojo', n:'Rojo', c:'#dd8f80', d:'#ad5a4c'},
+  {id:'rosa', n:'Rosa', c:'#e8b0c0', d:'#c07890'},
+  {id:'lila', n:'Lila', c:'#c4b0dc', d:'#8f77b3'},
+  {id:'noche', n:'Azul noche', c:'#8995c4', d:'#56629a'},
+  {id:'celeste', n:'Celeste', c:'#a6cbe0', d:'#6a99b8'},
+  {id:'lima', n:'Lima', c:'#cddc8a', d:'#94a64c'},
+  {id:'amarillo', n:'Amarillo', c:'#ecd27e', d:'#c4a24a'},
+  {id:'arcoiris', n:'Arcoíris', c:'rainbow', d:'#9a86b0'}
+];
+const RAINBOW_STOPS = ['#e8a0a0','#ecc58a','#e6dc8e','#b3d39a','#a6cbe0','#c4b0dc'];
+
+/* ---------- formas de cuerpo ---------- */
+const BODY = 'M85,285 L85,165 C85,115 112,92 150,92 C188,92 215,115 215,165 L215,285 Z';
+const FUR = (()=>{ let p='M85,165 C85,115 112,92 150,92 C188,92 215,115 215,165', k=0;
+  for(let y=176;y<=280;y+=11) p+=` L${k++%2?221:215},${y}`; p+=' L215,288';
+  for(let x=215;x>85;x-=13) p+=` L${x-6.5},301 L${x-13},288`; k=0;
+  for(let y=280;y>=176;y-=11) p+=` L${k++%2?79:85},${y}`; return p+' Z'; })();
+const CLOUD = (()=>{ const pts=[[85,285],[80,240],[82,195],[92,152],[112,114],[150,96],[188,114],[208,152],[218,195],[220,240],[215,285],[183,293],[150,289],[117,293]];
+  let d=`M${pts[0]}`; for(let i=1;i<=pts.length;i++){ const a=pts[i-1], b=pts[i%pts.length]; const r=(Math.hypot(b[0]-a[0],b[1]-a[1])*0.58).toFixed(1); d+=` A${r},${r} 0 0 1 ${b}`; } return d+' Z'; })();
+const PEAR = 'M150,92 C122,92 108,118 108,150 C108,178 82,200 82,240 C82,276 112,292 150,292 C188,292 218,276 218,240 C218,200 192,178 192,150 C192,118 178,92 150,92 Z';
+const ROBOT = 'M93,100 L207,100 Q215,100 215,108 L215,285 L85,285 L85,108 Q85,100 93,100 Z';
+
+/* =========================================================
+   PARTES — cada opción: [id, nombre, dibujo(x)]  x = {C,D,u}
+   ========================================================= */
+const H = {
+ roto:   x=>{let l='';for(let y=42;y<=96;y+=9)l+=`<line x1="141" y1="${y+5}" x2="159" y2="${y-3}" ${s(2.2)}/>`;return `<polygon points="141,104 141,34 146,27 150,36 154,25 159,33 159,104" fill="${BONE}" ${s()}/>${l}`;},
+ unicornio: x=>`<path d="M140,104 L150,12 L160,104 Z" fill="#f4e2ec" ${s()}/><path d="M142,90 L158,80 M144,70 L156,61 M146,50 L154,43 M148,31 L152,27" fill="none" ${s(2)}/>`+star(176,30,8,'#ecd27e')+star(124,22,5,'#ecd27e'),
+ espiral:x=>`<path d="M136,104 Q140,50 157,12 Q157,60 165,104 Z" fill="#ecd27e" ${s()}/><path d="M139,82 Q151,90 163,80 M142,60 Q151,67 160,58 M146,40 Q152,45 158,38" fill="none" ${s(2.2)}/>`,
+ doble:  x=>mirror(`<path d="M118,112 Q78,100 80,50 Q96,86 130,102 Z" fill="${BONE}" ${s()}/><path d="M92,82 L99,76 M86,68 L92,63" ${s(2)}/>`),
+ antenas:x=>mirror(`<path d="M138,100 Q130,70 122,40" fill="none" ${s()}/><circle cx="121" cy="36" r="10" fill="#dd8f80" ${s()}/>${shine(118,33,3)}`),
+ hongo:  x=>`<rect x="142" y="66" width="16" height="40" rx="5" fill="${BONE}" ${s()}/><path d="M110,72 Q150,18 190,72 Q150,84 110,72 Z" fill="#d06a52" ${s()}/>`+[[134,54,6],[160,46,5],[174,62,4],[123,66,3.5],[150,64,3]].map(([a,b,r])=>`<circle cx="${a}" cy="${b}" r="${r}" fill="#fff6e6" ${s(1.6)}/>`).join(''),
+ rayo:   x=>`<polygon points="145,106 157,106 153,76 172,80 141,14 147,60 129,56" fill="#ecd27e" ${s()}/>`,
+ corona: x=>`<polygon points="110,104 110,62 128,80 140,50 150,74 160,50 172,80 190,62 190,104" fill="#e3b94a" ${s()}/><line x1="110" y1="92" x2="190" y2="92" ${s(2)}/><circle cx="140" cy="48" r="5" fill="#dd8f80" ${s(1.8)}/><circle cx="160" cy="48" r="5" fill="#8995c4" ${s(1.8)}/><circle cx="110" cy="60" r="4" fill="#b9c98f" ${s(1.8)}/><circle cx="190" cy="60" r="4" fill="#b9c98f" ${s(1.8)}/>`,
+ vela:   x=>`<rect x="143" y="52" width="14" height="54" rx="3" fill="#f0bccb" ${s()}/><path d="M143,64 L157,58 M143,80 L157,74 M143,96 L157,90" ${s(1.8)}/><line x1="150" y1="52" x2="150" y2="44" ${s(2)}/><path d="M150,16 Q164,34 150,46 Q136,34 150,16 Z" fill="#f2c45a" ${s()}/><path d="M150,30 Q156,38 150,44 Q144,38 150,30 Z" fill="#e8784a"/>`,
+ helado: x=>`<polygon points="132,62 168,62 150,106" fill="#d9a35f" ${s()}/><path d="M138,70 L158,90 M150,64 L164,78 M162,70 L142,90 M150,64 L136,78" ${s(1.6)}/><path d="M128,64 Q124,34 150,30 Q176,34 172,64 Q161,72 150,64 Q139,72 128,64 Z" fill="#f0b0c4" ${s()}/><circle cx="152" cy="24" r="7" fill="#c8553d" ${s(1.8)}/><path d="M140,44 l5,-3 M160,40 l4,4 M148,54 l6,0 M165,54 l-3,4 M134,56 l3,4" stroke="#6a99b8" stroke-width="2.4" stroke-linecap="round"/>`,
+ ninguno:x=>''
+};
+const E = {
+ punta:   x=>mirror(`<polygon points="104,142 64,48 138,104" fill="${x.C}" ${s()}/><polygon points="104,126 77,70 124,104" fill="${x.D}" ${s(2.2)}/>`),
+ redondas:x=>mirror(`<circle cx="100" cy="110" r="25" fill="${x.C}" ${s()}/><circle cx="100" cy="110" r="13" fill="${x.D}" ${s(2.2)}/>`),
+ caidas:  x=>mirror(`<ellipse cx="80" cy="150" rx="16" ry="42" transform="rotate(24 80 150)" fill="${x.D}" ${s()}/>`),
+ conejo:  x=>mirror(`<ellipse cx="118" cy="56" rx="16" ry="48" transform="rotate(-10 118 56)" fill="${x.C}" ${s()}/><ellipse cx="118" cy="60" rx="7" ry="34" transform="rotate(-10 118 60)" fill="#efbccb" ${s(2.2)}/>`),
+ elefante:x=>mirror(`<path d="M98,124 C40,92 18,168 48,204 C66,224 92,200 94,178 Z" fill="${x.C}" ${s()}/><path d="M92,134 C52,114 38,166 58,190 C70,202 86,188 88,174 Z" fill="${x.D}" ${s(2)}/>`),
+ murcielago:x=>mirror(`<polygon points="100,136 50,36 90,70 102,54 134,104" fill="${x.D}" ${s()}/><path d="M100,128 L60,52 M108,116 L98,62" fill="none" ${s(1.8)}/>`),
+ pez:     x=>mirror(`<path d="M90,148 L40,114 L48,138 L32,150 L48,162 L40,186 Z" fill="${x.D}" ${s()}/><path d="M88,148 L44,122 M88,149 L40,150 M88,150 L44,178" fill="none" ${s(1.6)}/>`),
+ hojas:   x=>mirror(`<path d="M108,112 Q58,64 68,26 Q122,46 122,106 Z" fill="#a9c07a" ${s()}/><path d="M112,104 Q92,66 70,30 M96,80 L84,82 M104,94 L92,98 M92,66 L102,60" fill="none" ${s(1.6)}/>`)
+};
+function eyeball(x,cx,cy,r,dx=0){
+  const px=cx+dx, py=cy+r*.12, pr=r*.36;
+  return `<circle cx="${cx}" cy="${cy}" r="${r+6}" fill="${x.C}" ${s()}/><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fffaf0" ${s()}/><circle cx="${px}" cy="${py}" r="${pr}" fill="${INK}"/>${shine(px-pr*.35,py-pr*.4,Math.max(1.6,pr*.38))}`;
+}
+const Y = {
+ saltones: x=>eyeball(x,120,150,26,5)+eyeball(x,180,150,26,-5),
+ ciclope:  x=>eyeball(x,150,146,34),
+ tres:     x=>eyeball(x,112,154,18,3)+eyeball(x,150,126,17)+eyeball(x,188,154,18,-3),
+ cuatro:   x=>[102,134,166,198].map((cx,i)=>eyeball(x,cx,148,12,i<2?2:-2)).join(''),
+ caracol:  x=>tube('M130,112 L112,52',x.C)+tube('M170,112 L188,52',x.C)+eyeball(x,110,46,15,3)+eyeball(x,190,46,15,-3)+`<circle cx="150" cy="150" r="4" fill="${x.D}"/>`,
+ anteojos: x=>eyeball(x,118,150,20,4)+eyeball(x,182,150,20,-4)+`<circle cx="118" cy="150" r="29" fill="${WATER}" fill-opacity=".25" ${s(4)}/><circle cx="182" cy="150" r="29" fill="${WATER}" fill-opacity=".25" ${s(4)}/><path d="M146,144 Q150,136 154,144 M89,146 L80,140 M211,146 L220,140" fill="none" ${s(4)}/>`,
+ enojados: x=>eyeball(x,120,152,23,6)+eyeball(x,180,152,23,-6)+`<path d="M94,118 L142,132 M158,132 L206,118" ${s(8)}/>`,
+ pestanas: x=>eyeball(x,120,152,24,3)+eyeball(x,180,152,24,-3)+mirror(`<path d="M104,128 L96,116 M114,124 L110,110 M126,123 L126,109 M137,127 L142,115" fill="none" ${s(2.4)}/>`),
+ mosca:    x=>{ const one=(cx)=>{ let d=''; for(let r=0;r<6;r++) for(let c=0;c<5;c++){ const px=cx-22+c*11+(r%2)*5.5, py=120+r*11; d+=`<circle cx="${px}" cy="${py}" r="3.2" fill="#9a7290"/>`; }
+     return `<clipPath id="fe${x.u}${cx}"><ellipse cx="${cx}" cy="148" rx="30" ry="34"/></clipPath><ellipse cx="${cx}" cy="148" rx="30" ry="34" fill="#5e3a55"/><g clip-path="url(#fe${x.u}${cx})">${d}</g><ellipse cx="${cx}" cy="148" rx="30" ry="34" fill="none" ${s()}/>${shine(cx-12,132,5)}${shine(cx-4,126,2.5)}`; };
+   return one(118)+one(182); },
+ dormilon: x=>{ const one=cx=>`<circle cx="${cx}" cy="150" r="22" fill="#fffaf0" ${s()}/><circle cx="${cx}" cy="160" r="6" fill="${INK}"/><path d="M${cx-22},150 A22,22 0 0 1 ${cx+22},150 Z" fill="${x.D}" ${s()}/><path d="M${cx-14},154 l-3,6 M${cx},156 l0,7 M${cx+14},154 l3,6" ${s(2)}/>`;
+   return one(122)+one(178)+`<text x="208" y="104" font-family="Gochi Hand, sans-serif" font-size="24" fill="${INK}">z</text><text x="222" y="86" font-family="Gochi Hand, sans-serif" font-size="17" fill="${INK}">z</text>`; }
+};
+const M = {
+ babosa: x=>{ const m='M108,188 Q150,180 192,188 Q190,240 150,243 Q110,240 108,188 Z';
+   const teeth=[117,139,161].map(t=>`<rect x="${t}" y="178" width="22" height="${t===139?32:28}" rx="7" fill="#fffaf0" ${s(2.6)}/>`).join('');
+   return `<clipPath id="mc${x.u}"><path d="${m}"/></clipPath><path d="${m}" fill="${MOUTH}"/><g clip-path="url(#mc${x.u})">${teeth}</g><path d="${m}" fill="none" ${s()}/>
+     <path d="M134,218 Q134,207 150,207 Q166,207 166,218 L166,264 Q166,281 150,281 Q134,281 134,264 Z" fill="${TONGUE}" ${s()}/><path d="M150,214 L150,266" ${s(2.2)}/><ellipse cx="142" cy="228" rx="3.5" ry="9" fill="#fff" opacity=".55"/>
+     <path d="M160,284 Q156,293 160,299 Q166,293 160,284 Z" fill="${WATER}" ${s(2)}/>`; },
+ colmillos: x=>`<path d="M108,196 Q150,226 192,196" fill="none" ${s()}/><polygon points="122,206 134,212 127,228" fill="#fffaf0" ${s(2.6)}/><polygon points="166,212 178,206 173,228" fill="#fffaf0" ${s(2.6)}/>`,
+ sonrisa: x=>`<path d="M104,192 Q150,256 196,192 Z" fill="${MOUTH}"/><ellipse cx="150" cy="218" rx="20" ry="8" fill="${TONGUE}"/><path d="M104,192 Q150,256 196,192 Z" fill="none" ${s()}/>`,
+ undiente: x=>`<path d="M110,196 Q150,240 190,196 Q150,208 110,196 Z" fill="${MOUTH}" ${s()}/><rect x="141" y="200" width="18" height="17" rx="4" fill="#fffaf0" ${s(2.4)}/>`,
+ sorpresa: x=>`<ellipse cx="150" cy="214" rx="15" ry="20" fill="${MOUTH}" ${s()}/><ellipse cx="150" cy="224" rx="8" ry="6" fill="${TONGUE}"/>`,
+ pico: x=>`<path d="M120,204 Q150,230 180,204 Z" fill="#d98a3c" ${s()}/><path d="M110,192 Q150,174 190,192 Q192,208 150,210 Q108,208 110,192 Z" fill="#eba650" ${s()}/><circle cx="140" cy="191" r="2.5" fill="${INK}"/><circle cx="160" cy="191" r="2.5" fill="${INK}"/>`,
+ bigote: x=>`<path d="M120,218 Q150,240 180,218" fill="none" ${s()}/><path d="M150,198 C138,186 110,186 100,206 C116,198 132,208 150,205 C168,208 184,198 200,206 C190,186 162,186 150,198 Z" fill="#5a4030" ${s()}/>`,
+ chupete: x=>`<circle cx="150" cy="238" r="14" fill="none" stroke="${INK}" stroke-width="9"/><circle cx="150" cy="238" r="14" fill="none" stroke="#efbccb" stroke-width="4.5"/><ellipse cx="150" cy="212" rx="34" ry="16" fill="#a6cbe0" ${s()}/><circle cx="150" cy="212" r="7" fill="#efbccb" ${s(2)}/>${shine(134,206,3)}`,
+ trompa: x=>tube('M150,180 Q152,232 140,256 Q132,276 152,282',x.C,30)+`<path d="M139,214 L161,214 M138,234 L156,236 M134,252 L148,258" fill="none" ${s(1.8)}/><ellipse cx="156" cy="282" rx="5" ry="3" fill="${INK}"/>`
+};
+const BD = {
+ escamas: {p:FUR, tex:x=>{ let t='';
+   for(let r=0;r<6;r++){const y=108+r*14;for(let i=86+(r%2)*9;i<215;i+=18)t+=`<path d="M${i},${y} q9,9 18,0" fill="none" ${s(2.2)}/>`;}
+   for(let i=0;i<19;i++){const a=88+i*7;t+=`<line x1="${a}" y1="${236+(i%3)*9}" x2="${a-5}" y2="296" ${s(1.6)}/>`;}
+   for(let i=0;i<14;i++){const a=90+i*9;t+=`<line x1="${a}" y1="${226+(i%2)*14}" x2="${a+8}" y2="296" ${s(1.2)}/>`;} return t; }},
+ peludo: {p:FUR, top:x=>`<path d="M128,96 L134,78 L141,93 L150,72 L158,93 L166,78 L172,96" fill="${x.C}" ${s()}/>`, tex:x=>{ let t='';
+   for(let r=0;r<9;r++) for(let i=0;i<9;i++){const a=92+i*15+(r%2)*7, b=110+r*20; t+=`<path d="M${a},${b} l3,10 M${a+5},${b-1} l2,9" ${s(1.6)} fill="none"/>`;} return t; }},
+ rayado: {p:BODY, tex:x=>[134,174,214,254].map(y=>`<path d="M78,${y} Q114,${y-12} 150,${y} T222,${y}" fill="none" stroke="${x.D}" stroke-width="13"/>`).join('')},
+ lunares: {p:BODY, tex:x=>[[112,120,9],[178,112,7],[200,180,11],[98,200,12],[150,268,13],[195,250,9],[110,262,7],[168,140,5]].map(([a,b,r])=>`<circle cx="${a}" cy="${b}" r="${r}" fill="${x.D}"/>`).join('')},
+ cuadritos: {p:BODY, tex:x=>{ let t=''; for(let r=0;r<10;r++) for(let c=0;c<7;c++) if((r+c)%2) t+=`<rect x="${80+c*20}" y="${92+r*20}" width="20" height="20" fill="${x.D}" opacity=".6"/>`; return t; }},
+ estrellas: {p:BODY, tex:x=>`<ellipse cx="150" cy="240" rx="50" ry="46" fill="#fff" opacity=".35"/>`+[[128,224,9],[166,236,12],[140,264,7],[178,268,6],[118,250,5]].map(([a,b,r])=>star(a,b,r,'#ecd27e')).join('')},
+ nube: {p:CLOUD, tex:x=>`<path d="M104,240 q14,-12 28,0 M150,262 q14,-12 28,0 M170,206 q12,-10 24,0" fill="none" ${s(1.8)}/><ellipse cx="150" cy="248" rx="54" ry="40" fill="#fff" opacity=".3"/>`},
+ pera: {p:PEAR, tex:x=>`<path d="M150,92 Q146,80 152,70 M152,74 Q166,66 172,76 Q160,82 152,74 Z" fill="#a9c07a" ${s(2)}/>`+[[120,236],[176,224],[140,266],[188,256],[110,262],[162,246]].map(([a,b])=>`<ellipse cx="${a}" cy="${b}" rx="2.2" ry="3.4" fill="${x.D}"/>`).join('')},
+ robot: {p:ROBOT, tex:x=>`<rect x="116" y="220" width="68" height="48" rx="6" fill="${x.D}" ${s(2.2)}/><circle cx="132" cy="236" r="6" fill="#dd8f80" ${s(1.8)}/><circle cx="150" cy="236" r="6" fill="#ecd27e" ${s(1.8)}/><circle cx="168" cy="236" r="6" fill="#a9c07a" ${s(1.8)}/><path d="M124,256 L176,256" ${s(2)}/>`+[[94,110],[206,110],[94,276],[206,276]].map(([a,b])=>`<circle cx="${a}" cy="${b}" r="3.2" fill="#fffaf0" ${s(1.5)}/>`).join('')+`<line x1="85" y1="200" x2="215" y2="200" ${s(1.6)}/>`},
+ liso: {p:BODY, tex:x=>`<ellipse cx="150" cy="238" rx="48" ry="44" fill="#fff" opacity=".35"/>`}
+};
+const W = {
+ alita: x=>mirror(`<path d="M90,165 L32,163 Q16,163 16,180 L16,240 Q16,256 29,254 Q39,252 39,236 L41,212 Q43,252 56,252 Q68,250 66,233 L68,206 Q71,236 83,233 L90,214 Z" fill="${x.D}" ${s()}/>`+[30,44,58,72].map(a=>`<line x1="${a}" y1="172" x2="${a-4}" y2="${a<50?236:222}" ${s(1.8)}/>`).join('')),
+ murcielago: x=>mirror(`<path d="M90,165 L14,118 Q28,150 18,178 Q38,170 42,198 Q56,182 66,208 Q76,192 90,214 Z" fill="${x.D}" ${s()}/><path d="M88,170 L36,160 M88,180 L48,190 M88,192 L66,206" fill="none" ${s(1.8)}/>`),
+ dragon: x=>mirror(`<path d="M90,164 L40,106 L46,132 L12,126 L30,158 L6,172 L40,184 L30,214 L90,216 Z" fill="${x.C}" ${s()}/><path d="M90,168 L40,106 M90,172 L12,126 M90,180 L6,172 M90,196 L30,214" fill="none" ${s(1.8)}/>`+[[40,106],[12,126],[6,172],[30,214]].map(([a,b])=>`<circle cx="${a}" cy="${b}" r="3" fill="${INK}"/>`).join('')),
+ mariposa: x=>mirror(`<path d="M90,170 C40,104 2,138 20,180 C28,198 60,196 90,188 Z" fill="#e8b0c0" ${s()}/><path d="M90,194 C50,200 32,242 56,252 C74,258 86,228 90,208 Z" fill="#c4b0dc" ${s()}/><circle cx="44" cy="160" r="9" fill="#ecd27e" ${s(1.8)}/><circle cx="62" cy="176" r="5" fill="#fffaf0" ${s(1.6)}/><circle cx="64" cy="230" r="6" fill="#a6cbe0" ${s(1.6)}/>`),
+ abeja: x=>mirror(`<ellipse cx="56" cy="168" rx="38" ry="18" transform="rotate(-25 56 168)" fill="#e2f0f6" fill-opacity=".85" ${s()}/><ellipse cx="62" cy="206" rx="28" ry="13" transform="rotate(15 62 206)" fill="#e2f0f6" fill-opacity=".85" ${s()}/><path d="M86,176 Q60,166 30,170 M86,200 Q66,204 44,212" fill="none" ${s(1.4)}/>`),
+ angel: x=>mirror(`<path d="M90,165 C60,118 18,128 16,160 C28,158 30,170 24,178 C36,176 38,188 32,196 C46,194 50,206 46,214 C62,210 78,212 90,214 Z" fill="#fbf6ec" ${s()}/><path d="M86,170 C62,150 40,150 28,160 M88,184 C66,176 48,178 36,186 M88,198 C70,194 58,198 48,204" fill="none" ${s(1.6)}/>`),
+ plumas: x=>mirror([-32,-6,20].map(a=>`<g transform="rotate(${a} 90 190)"><ellipse cx="52" cy="190" rx="40" ry="12" fill="${a===-6?x.C:x.D}" ${s()}/><line x1="16" y1="190" x2="88" y2="190" ${s(1.8)}/></g>`).join('')),
+ aletas: x=>mirror(`<path d="M90,172 Q42,148 26,188 Q48,196 36,232 Q70,222 90,236 Z" fill="${x.D}" ${s()}/><path d="M86,182 Q60,180 44,192 M86,204 Q64,206 52,222" fill="none" ${s(1.8)}/>`),
+ globos: x=>`<path d="M58,252 Q30,190 40,134" fill="none" ${s(1.6)}/><path d="M242,252 Q270,190 260,134" fill="none" ${s(1.6)}/><ellipse cx="40" cy="104" rx="24" ry="30" fill="#dd8f80" ${s()}/><polygon points="36,134 44,134 40,128" fill="#dd8f80" ${s(1.8)}/><ellipse cx="260" cy="104" rx="24" ry="30" fill="#a6cbe0" ${s()}/><polygon points="256,134 264,134 260,128" fill="#a6cbe0" ${s(1.8)}/>${shine(31,92,5)}${shine(251,92,5)}`,
+ ninguna: x=>''
+};
+/* ---------- partes nuevas (leyendas) ---------- */
+function flame(cx,top,h,c1='#f2a541',c2='#f2d35a'){
+  const w=h*.34, b=top+h;
+  return `<path d="M${cx},${top} Q${cx+w*1.3},${top+h*.55} ${cx+w*.7},${b-h*.12} Q${cx},${b+h*.05} ${cx-w*.7},${b-h*.12} Q${cx-w*1.3},${top+h*.55} ${cx},${top} Z" fill="${c1}" ${s()}/>`+
+         `<path d="M${cx},${top+h*.35} Q${cx+w*.6},${top+h*.7} ${cx},${b-h*.12} Q${cx-w*.6},${top+h*.7} ${cx},${top+h*.35} Z" fill="${c2}"/>`;
+}
+H.cresta = x=>flame(128,50,54)+flame(172,50,54)+flame(150,24,70);
+E.melena = x=>{
+  const n=16, cx=150, cy=140, R=88; const pts=[];
+  for(let i=0;i<n;i++){ const a=-Math.PI/2+i*2*Math.PI/n; pts.push([(cx+Math.cos(a)*R).toFixed(1),(cy+Math.sin(a)*R*.92).toFixed(1)]); }
+  let d=`M${pts[0]}`; for(let i=1;i<=n;i++){ const b=pts[i%n]; d+=` A18,18 0 0 1 ${b}`; }
+  let lines=''; for(let i=0;i<n;i++){ const a=-Math.PI/2+(i+.5)*2*Math.PI/n; lines+=`<path d="M${(cx+Math.cos(a)*(R-6)).toFixed(1)},${(cy+Math.sin(a)*(R-6)*.92).toFixed(1)} L${(cx+Math.cos(a)*(R-22)).toFixed(1)},${(cy+Math.sin(a)*(R-22)*.92).toFixed(1)}" ${s(1.6)}/>`; }
+  return `<path d="${d} Z" fill="${x.D}" ${s()}/>${lines}`;
+};
+E.crin = x=>`<polygon points="128,94 136,72 148,90 158,68 168,90 182,74 188,98 206,88 204,112 224,108 214,128 234,132 218,148 236,160 216,166 230,184 212,188 200,176 196,120 172,100 140,100" fill="${x.D}" ${s()}/><path d="M158,74 L166,94 M182,80 L184,100 M204,94 L198,112 M222,114 L206,124 M230,138 L212,146 M230,164 L210,166" fill="none" ${s(1.5)}/>`;
+M.argolla = x=>`<ellipse cx="150" cy="208" rx="34" ry="20" fill="#efbccb" ${s()}/><ellipse cx="138" cy="206" rx="4" ry="6" fill="${INK}"/><ellipse cx="162" cy="206" rx="4" ry="6" fill="${INK}"/><circle cx="150" cy="231" r="11" fill="none" stroke="${INK}" stroke-width="7"/><circle cx="150" cy="231" r="11" fill="none" stroke="#e3b94a" stroke-width="3.4"/>`;
+M.bigotes = x=>`<path d="M120,212 Q150,234 180,212" fill="none" ${s()}/><polygon points="130,218 138,221 134,230" fill="#fffaf0" ${s(2.2)}/><polygon points="162,221 170,218 166,230" fill="#fffaf0" ${s(2.2)}/>`+mirror(tube('M126,204 Q92,202 70,186 Q54,172 64,160 Q74,152 80,164',x.D,9));
+M.nariz = x=>`<path d="M110,220 Q118,232 132,230 M190,220 Q182,232 168,230" fill="none" ${s()}/><path d="M140,176 Q140,154 150,154 Q160,154 160,176 L170,246 Q172,262 156,260 Q146,258 144,246 Z" fill="#d06a52" ${s()}/><ellipse cx="152" cy="250" rx="3" ry="2" fill="${INK}"/><path d="M146,172 L148,226" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>`;
+const T = {
+ ninguna: x=>'',
+ serpiente: x=>tube('M206,262 Q262,282 268,240 Q272,206 246,198',x.D,14)+`<ellipse cx="240" cy="194" rx="14" ry="10" fill="${x.D}" ${s()}/><circle cx="236" cy="190" r="2.6" fill="${INK}"/><path d="M227,198 L218,201 M218,201 L213,197 M218,201 L214,206" stroke="#d06a52" stroke-width="2.2" stroke-linecap="round" fill="none"/>`,
+ zorro: x=>[-34,-12,10].map(a=>`<g transform="rotate(${a} 206 262)"><path d="M204,268 Q236,262 262,246 Q286,232 288,212 Q264,204 248,220 Q228,238 204,244 Z" fill="${x.C}" ${s()}/><path d="M288,212 Q270,210 266,222 Q280,226 288,212 Z" fill="#fffaf0" ${s(1.8)}/></g>`).join(''),
+ pez: x=>tube('M206,262 Q250,272 264,250',x.C,22)+`<path d="M260,252 L286,228 Q280,252 288,274 Z" fill="${x.D}" ${s()}/><path d="M264,252 L282,236 M264,253 L284,266" ${s(1.5)}/>`,
+ fuego: x=>tube('M206,262 Q246,278 258,250',x.C,12)+flame(260,190,62),
+ dragon: x=>`<path d="M206,248 Q262,262 278,220 L296,204 L284,232 Q272,280 206,278 Z" fill="${x.C}" ${s()}/>`+[[232,258],[252,250],[268,236]].map(([a,b])=>`<polygon points="${a-7},${b+2} ${a+2},${b-12} ${a+7},${b}" fill="${x.D}" ${s(1.8)}/>`).join(''),
+ leon: x=>tube('M206,262 Q258,284 262,236',x.C,10)+`<path d="M262,238 L250,224 L259,228 L261,212 L268,226 L278,218 L274,234 Z" fill="${x.D}" ${s()}/>`
+};
+const F = {
+ pezunas: x=>mirror(`<polygon points="110,270 132,270 132,330 126,321 121,330 116,321 110,330" fill="${x.C}" ${s()}/><line x1="110" y1="304" x2="132" y2="304" ${s(2.2)}/>`),
+ garras: x=>mirror(`<rect x="110" y="268" width="22" height="46" fill="${x.C}" ${s()}/><ellipse cx="117" cy="318" rx="24" ry="11" fill="${x.C}" ${s()}/><path d="M95,320 l-6,7 l9,-1 M107,326 l-4,8 l9,-3 M119,328 l-2,8 l8,-5" fill="#fffaf0" ${s(2.4)}/>`),
+ pato: x=>mirror(`<rect x="116" y="268" width="10" height="38" fill="#eba650" ${s()}/><path d="M98,320 L121,302 L144,320 Q133,313 121,322 Q109,313 98,320 Z" fill="#eba650" ${s()}/><path d="M121,306 L121,318 M110,312 L104,318 M132,312 L138,318" fill="none" ${s(1.4)}/>`),
+ gallina: x=>mirror(tube('M121,270 L121,312','#e8b04a',9)+`<path d="M121,312 L102,326 M121,312 L121,331 M121,312 L139,326 M121,312 L128,302" fill="none" ${s(3)}/>`),
+ tentaculos: x=>[104,130,170,196].map((a,i)=>{const q=i%2?-1:1; return tube(`M${a},270 Q${a+14*q},295 ${a-6*q},312 Q${a-20*q},326 ${a-8*q},334 Q${a+2*q},338 ${a+4*q},330`,x.C,15);}).join(''),
+ resortes: x=>mirror(tube('M121,270 L111,276 L131,284 L111,292 L131,300 L111,308 L131,316 L121,320','#c8ced6',9)+`<ellipse cx="121" cy="326" rx="18" ry="7" fill="#8a96a6" ${s()}/>`),
+ zapatillas: x=>mirror(`<rect x="114" y="272" width="14" height="38" fill="${x.C}" ${s()}/><path d="M98,326 L98,316 Q98,304 112,304 L126,304 Q144,306 144,320 L144,326 Z" fill="#dd6a5a" ${s()}/><rect x="98" y="321" width="46" height="8" rx="3" fill="#fffaf0" ${s(2.4)}/><path d="M112,308 l8,6 M118,306 l8,6" stroke="#fffaf0" stroke-width="2.4" stroke-linecap="round"/>`),
+ botas: x=>mirror(`<rect x="113" y="270" width="16" height="24" fill="${x.C}" ${s()}/><path d="M108,290 L134,290 L134,312 L144,314 Q151,316 151,324 L151,330 L108,330 Z" fill="#ecd27e" ${s()}/><line x1="108" y1="298" x2="134" y2="298" ${s(2)}/><rect x="107" y="326" width="45" height="6" rx="2" fill="#a8643f" ${s(2)}/>`),
+ patines: x=>mirror(`<rect x="114" y="270" width="14" height="32" fill="${x.C}" ${s()}/><path d="M104,300 L134,300 Q146,302 146,314 L104,314 Z" fill="#a6cbe0" ${s()}/><rect x="102" y="314" width="46" height="6" rx="2" fill="#d9d1c1" ${s(2)}/>`+[110,125,140].map(a=>`<circle cx="${a}" cy="326" r="6" fill="#dd8f80" ${s(2)}/>`).join(''))
+};
+
+F.flotando = x=>'';
+function arms(x){
+  return mirror(tube('M88,214 Q66,228 60,252',x.C,13)+`<path d="M61,252 l-9,9 M62,253 l-2,12 M63,252 l8,9" ${s(2.6)} fill="none"/>`);
+}
+function hatch(){
+  let t=''; for(let i=0;i<26;i++){const a=158+i*4.2;t+=`<line x1="${a}" y1="${100+i*1.5}" x2="${a+40}" y2="300" ${s(1)} opacity=".55"/>`;}
+  for(let i=0;i<12;i++){const a=190+i*4;t+=`<line x1="${a}" y1="120" x2="${a-36}" y2="300" ${s(.9)} opacity=".4"/>`;} return t;
+}
+function bodyLayer(x,id){
+  const b = BD[id] || BD.liso;
+  return `${b.top?b.top(x):''}<clipPath id="b${x.u}"><path d="${b.p}"/></clipPath><path d="${b.p}" fill="${x.C}"/><g clip-path="url(#b${x.u})">${b.tex(x)}${hatch()}</g><path d="${b.p}" fill="none" ${s()}/>`;
+}
+
+/* ---------- catálogo (orden = orden en pantalla) ---------- */
+const L = (obj, list) => list.map(([id,label])=>({id,label,draw:obj[id]}));
+const PARTS = {
+  horn:{label:'Cuerno', crop:'86 0 128 124', opts:L(H,[['roto','Roto'],['unicornio','Unicornio'],['espiral','Dorado'],['doble','De toro'],['antenas','Antenas'],['hongo','Hongo'],['rayo','Rayo'],['corona','Corona'],['vela','Vela de cumple'],['helado','Helado'],['cresta','Cresta de fuego'],['ninguno','Sin cuerno']])},
+  ears:{label:'Orejas', crop:'8 18 284 200', opts:L(E,[['punta','Puntiagudas'],['redondas','Redondas'],['caidas','Caídas'],['conejo','De conejo'],['elefante','De elefante'],['murcielago','De murciélago'],['pez','Aletas de pez'],['hojas','Hojitas'],['melena','Melena de león'],['crin','Crin de caballo']])},
+  eyes:{label:'Ojos', crop:'55 22 190 175', opts:L(Y,[['saltones','Saltones'],['ciclope','Uno gigante'],['tres','Tres ojos'],['cuatro','Cuatro ojos'],['caracol','De caracol'],['anteojos','Con anteojos'],['enojados','Enojados'],['pestanas','Con pestañas'],['mosca','De mosca'],['dormilon','Dormilón']])},
+  mouth:{label:'Boca', crop:'88 165 124 128', opts:L(M,[['babosa','Lengua babosa'],['colmillos','Colmillos'],['sonrisa','Sonrisa'],['undiente','Un diente'],['sorpresa','¡Oh!'],['pico','Pico de pato'],['bigote','Bigote'],['chupete','Chupete'],['trompa','Trompa'],['argolla','Nariz de toro'],['bigotes','Bigotes de dragón'],['nariz','Nariz larga']])},
+  body:{label:'Cuerpo', crop:'40 60 220 255', opts:Object.keys(BD).map(id=>({id,label:{escamas:'Escamas',peludo:'Peludo',rayado:'Rayado',lunares:'Lunares',cuadritos:'Cuadritos',estrellas:'Estrellas',nube:'Nube',pera:'Pera',robot:'Robot',liso:'Liso'}[id]}))},
+  wings:{label:'Alas', crop:'0 60 300 210', opts:L(W,[['alita','Alitas'],['murcielago','Murciélago'],['dragon','Dragón'],['mariposa','Mariposa'],['abeja','Abeja'],['angel','Ángel'],['plumas','Plumas'],['aletas','Aletas'],['globos','Globos'],['ninguna','Sin alas']])},
+  feet:{label:'Patas', crop:'70 255 160 100', opts:L(F,[['pezunas','Pezuñas'],['garras','Garras'],['pato','De pato'],['gallina','De gallina'],['tentaculos','Tentáculos'],['resortes','Resortes'],['zapatillas','Zapatillas'],['botas','Botas'],['patines','Patines'],['flotando','Flotando']])},
+  tail:{label:'Cola', crop:'176 160 140 140', opts:L(T,[['ninguna','Sin cola'],['serpiente','Serpiente'],['zorro','Tres colas de zorro'],['pez','De pez'],['fuego','De fuego'],['dragon','De dragón'],['leon','De león']])},
+  color:{label:'Pintar', crop:'0 0 300 360', opts:COLORS.map(c=>({id:c.id,label:c.n}))}
+};
+const ORDER = ['horn','ears','eyes','mouth','body','wings','tail','feet','color'];
+const ORIGINAL = {horn:'roto',ears:'punta',eyes:'saltones',mouth:'babosa',body:'escamas',wings:'alita',tail:'ninguna',feet:'pezunas',color:'lapicera'};
+const get = (cat,id) => (PARTS[cat].opts.find(o=>o.id===id) || PARTS[cat].opts[0]);
+
+let uid = 0;
+/* ---------- etiquetas con flechas (como la lámina del cuaderno) ---------- */
+const CATWORD = {horn:'CUERNO',ears:'OREJAS',eyes:'OJOS',mouth:'BOCA',body:'CUERPO',wings:'ALAS',tail:'COLA',feet:'PATAS'};
+const LAB = {
+  horn: {x:300,y:34, a:'start', t:[161,62], o:{doble:[186,80],antenas:[178,40],corona:[176,72]}},
+  ears: {x:-22,y:78, a:'end',   t:[96,100]},
+  eyes: {x:305,y:128,a:'start', t:[209,150], o:{caracol:[202,52],cuatro:[214,150]}},
+  wings:{x:-22,y:196,a:'end',   t:[26,206], o:{globos:[20,118],plumas:[18,190],abeja:[22,170]}},
+  body: {x:305,y:250,a:'start', t:[216,252]},
+  feet: {x:-22,y:304,a:'end',   t:[108,320]},
+  tail: {x:305,y:304,a:'start', t:[262,248], o:{zorro:[272,226],fuego:[262,212],serpiente:[244,204],dragon:[276,226]}},
+  mouth:{x:150,y:374,a:'middle',t:[150,232], o:{babosa:[150,286],trompa:[152,288],chupete:[150,254]}}
+};
+const NONE = ['ninguno','ninguna','flotando'];
+function arrowPath(x1,y1,x2,y2){
+  const cx=(x1+x2)/2+(y2-y1)*.22, cy=(y1+y2)/2-(x2-x1)*.12;
+  const ang=Math.atan2(y2-cy,x2-cx), L=10, sp=.45;
+  const h1=[x2-L*Math.cos(ang-sp), y2-L*Math.sin(ang-sp)], h2=[x2-L*Math.cos(ang+sp), y2-L*Math.sin(ang+sp)];
+  return `M${x1},${y1} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x2},${y2} M${h1[0].toFixed(1)},${h1[1].toFixed(1)} L${x2},${y2} L${h2[0].toFixed(1)},${h2[1].toFixed(1)}`;
+}
+function labelsLayer(st){
+  let out='';
+  for(const k of Object.keys(LAB)){
+    const id=st[k]; if(NONE.includes(id)) continue;
+    const L=LAB[k], t=(L.o&&L.o[id])||L.t, opt=PARTS[k].opts.find(o=>o.id===id); if(!opt) continue;
+    const sx = L.a==='end'? L.x+8 : L.a==='start'? L.x-8 : L.x;
+    const sy = L.a==='middle'? L.y-24 : L.y-6;
+    out+=`<path d="${arrowPath(sx,sy,t[0],t[1])}" fill="none" stroke="${INK}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>`;
+    out+=`<text x="${L.x}" y="${L.y}" text-anchor="${L.a}" font-family="Gochi Hand, Patrick Hand, sans-serif" font-size="21" fill="${INK}" letter-spacing="1">${CATWORD[k]}</text>`;
+    out+=`<text x="${L.x}" y="${L.y+21}" text-anchor="${L.a}" font-family="Caveat, Patrick Hand, cursive" font-weight="700" font-size="${Math.min(23, Math.round(23*12/Math.max(12,opt.label.length)))}" fill="${INK}">${opt.label.toLowerCase()}</text>`;
+  }
+  return `<g filter="url(#wob)">${out}</g>`;
+}
+
+function monster(st, viewBox, opts={}){
+  const u = ++uid;
+  const col = COLORS.find(c=>c.id===st.color) || COLORS[0];
+  const rainbow = col.c==='rainbow';
+  const x = {u, C: rainbow?`url(#rb${u})`:col.c, D: col.d};
+  const defs = rainbow ? `<defs><linearGradient id="rb${u}" gradientUnits="userSpaceOnUse" x1="0" y1="40" x2="0" y2="330">${RAINBOW_STOPS.map((c,i)=>`<stop offset="${i/(RAINBOW_STOPS.length-1)}" stop-color="${c}"/>`).join('')}</linearGradient></defs>` : '';
+  const shadow = '';
+  const inner = get('wings',st.wings).draw(x) + `<g transform="translate(206 262) scale(1.15) translate(-206 -262)">${get('tail',st.tail).draw(x)}</g>` + get('horn',st.horn).draw(x) + get('ears',st.ears).draw(x) + get('feet',st.feet).draw(x)
+    + bodyLayer(x, st.body) + arms(x) + get('eyes',st.eyes).draw(x) + get('mouth',st.mouth).draw(x);
+  // dos pasadas de lapicera: una "fantasma" desplazada detrás, como el trazo repasado del cuaderno
+  let pen = opts.shadow===false ? `<g filter="url(#wob)">${inner}</g>` : `<g filter="url(#wob2)" opacity=".5">${inner}</g><g filter="url(#wob)">${inner}</g>`;
+  if(col.mono) pen = `<g filter="url(#mono)">${pen}</g>`;
+  const labels = opts.labels ? labelsLayer(st) : '';
+  const vb = viewBox || (opts.labels ? '-150 0 600 400' : '-12 2 324 342');
+  return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}<g filter="url(#wob)">${shadow}</g>${labels}<g class="bob">${pen}</g></svg>`;
+}
+
+/* ---------- nombre ---------- */
+const NB = {escamas:'Escami',peludo:'Pelu',rayado:'Raya',lunares:'Luna',cuadritos:'Cuadri',estrellas:'Estre',nube:'Nubo',pera:'Pera',robot:'Robo',liso:'Gomo'};
+const NH = {roto:'cornio',unicornio:'brillo',espiral:'rulo',doble:'toro',antenas:'bicho',hongo:'hongo',rayo:'rayo',corona:'rey',vela:'cumple',helado:'helado',cresta:'fuego',ninguno:'pancho'};
+const NE = {saltones:'Saltón',ciclope:'Cíclope',tres:'Trivista',cuatro:'Cuatrojos',caracol:'Caracolero',anteojos:'Sabiondo',enojados:'Gruñón',pestanas:'Coqueto',mosca:'Mosquero',dormilon:'Dormilón'};
+function nameOf(st){
+  if(st.name) return {n:st.name.replace(/^mostro\s+/i,'')||st.name};
+  if(st.body==='escamas'&&st.horn==='roto'&&st.eyes==='saltones') return {n:'Cornio', orig:true};
+  return {n:`${NB[st.body]||'Mostri'}${NH[st.horn]||'to'} ${NE[st.eyes]||''}`.trim(), orig:false};
+}
+const LEGENDS = [
+  {id:'kirin', name:'Kirinito', myth:'el Kirin', origin:'China y Japón', text:'Tiene escamas, pezuñas y un cuerno brillante. Dicen que cuando aparece, trae buena suerte.', horn:'unicornio',ears:'punta',eyes:'pestanas',mouth:'sonrisa',body:'escamas',wings:'ninguna',tail:'leon',feet:'pezunas',color:'amarillo'},
+  {id:'ciclope', name:'Ciclopín', myth:'el Cíclope', origin:'Grecia', text:'Un gigante con un solo ojo en el medio de la frente. ¡Con un ojo solo ve todo!', horn:'ninguno',ears:'redondas',eyes:'ciclope',mouth:'undiente',body:'peludo',wings:'ninguna',tail:'ninguna',feet:'garras',color:'lila'},
+  {id:'kraken', name:'Krakencito', myth:'el Kraken', origin:'Mares del norte de Europa', text:'Un pulpo gigante del fondo del mar. Los marineros contaban que era grande como una isla.', horn:'ninguno',ears:'pez',eyes:'saltones',mouth:'sorpresa',body:'lunares',wings:'aletas',tail:'ninguna',feet:'tentaculos',color:'noche'},
+  {id:'grifo', name:'Grifón', myth:'el Grifo', origin:'Grecia', text:'Mitad águila y mitad león. Vuela alto y cuida tesoros de oro.', horn:'ninguno',ears:'punta',eyes:'saltones',mouth:'pico',body:'peludo',wings:'plumas',tail:'leon',feet:'garras',color:'terracota'},
+  {id:'loong', name:'Loonguito', myth:'el Dragón chino', origin:'China', text:'Un dragón sin alas que vive en los ríos y las nubes. Es sabio y protege a todos.', horn:'espiral',ears:'punta',eyes:'saltones',mouth:'bigotes',body:'escamas',wings:'ninguna',tail:'dragon',feet:'garras',color:'rojo'},
+  {id:'pegaso', name:'Pegasito', myth:'Pegaso', origin:'Grecia', text:'Un caballo con alas que galopa entre las nubes. ¡Es muy veloz!', horn:'ninguno',ears:'crin',eyes:'pestanas',mouth:'sonrisa',body:'liso',wings:'angel',tail:'ninguna',feet:'pezunas',color:'celeste'},
+  {id:'coquena', name:'Coquenita', myth:'el Coquena', origin:'La Puna, en el norte de Argentina', text:'Cuida a las vicuñas y a las llamas de la montaña. Se enoja con quien les hace daño.', horn:'ninguno',ears:'conejo',eyes:'saltones',mouth:'undiente',body:'peludo',wings:'ninguna',tail:'ninguna',feet:'pezunas',color:'lapiz'},
+  {id:'quimera', name:'Quimerita', myth:'la Quimera', origin:'Grecia', text:'Una mezcla de león, cabra y serpiente. ¡Fue el primer mostro mix de la historia!', horn:'doble',ears:'melena',eyes:'enojados',mouth:'colmillos',body:'peludo',wings:'ninguna',tail:'serpiente',feet:'garras',color:'salvia'}
+];
+const PRESETS = [
+  {name:'Cornio', note:'el original', horn:'roto',ears:'punta',eyes:'saltones',mouth:'babosa',body:'escamas',wings:'alita',feet:'pezunas',color:'salvia'},
+  {name:'Dragoncito', note:'escupe fueguito', horn:'doble',ears:'punta',eyes:'enojados',mouth:'colmillos',body:'escamas',wings:'dragon',feet:'garras',color:'rojo'},
+  {name:'Robotín', note:'hace bip bup', horn:'antenas',ears:'redondas',eyes:'cuatro',mouth:'undiente',body:'robot',wings:'ninguna',feet:'patines',color:'noche'},
+  {name:'Nubecita', note:'flota en el cielo', horn:'unicornio',ears:'conejo',eyes:'pestanas',mouth:'sonrisa',body:'nube',wings:'angel',feet:'botas',color:'celeste'},
+  {name:'Patopera', note:'nada en la pileta', horn:'ninguno',ears:'hojas',eyes:'saltones',mouth:'pico',body:'pera',wings:'plumas',feet:'pato',color:'amarillo'},
+  {name:'Pulpolino', note:'vive en el mar', horn:'hongo',ears:'pez',eyes:'tres',mouth:'sorpresa',body:'lunares',wings:'aletas',feet:'tentaculos',color:'lila'},
+  {name:'Trompeta', note:'rey de la fiesta', horn:'corona',ears:'elefante',eyes:'dormilon',mouth:'trompa',body:'liso',wings:'globos',feet:'zapatillas',color:'rosa'},
+  {name:'Bichoraro', note:'sabe un montón', horn:'rayo',ears:'murcielago',eyes:'anteojos',mouth:'bigote',body:'cuadritos',wings:'mariposa',feet:'gallina',color:'lima'},
+  {name:'Peluchón', note:'abraza fuerte', horn:'helado',ears:'caidas',eyes:'ciclope',mouth:'babosa',body:'peludo',wings:'alita',feet:'resortes',color:'terracota'}
+];
+function jitter(str){
+  let h=0; for(const ch of str) h=(h*31+ch.charCodeAt(0))>>>0;
+  return [...str].map((ch,i)=>{ if(ch===' ') return ' '; h=(h*1103515245+12345)>>>0; const r=((h>>>8)%700)/100-3.5, y=((h>>>4)%5)-2;
+    return `<span style="transform:translateY(${y}px) rotate(${r.toFixed(1)}deg)">${ch}</span>`; }).join('');
+}
+
+/* ---------- sonido ---------- */
+let soundOn = true, actx = null;
+function tone(f1,f2,dur,type='square',vol=.06){
+  if(!soundOn) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime;
+    o.type=type; o.frequency.setValueAtTime(f1,t); o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+const blip = ()=>tone(520+Math.random()*300,900,.09,'triangle',.12);
+const boing = ()=>{ tone(180,700,.25,'sine',.18); setTimeout(()=>tone(700,260,.3,'sine',.12),180); };
+
+/* ---------- render ---------- */
+let state = Object.assign({}, ORIGINAL);
+let tab = 'horn';
+const $ = id=>document.getElementById(id);
+const swatch = c => c.mono ? `repeating-linear-gradient(45deg,#ece7db 0 5px,#24213a 5px 6.5px)` : c.c==='rainbow' ? `linear-gradient(${RAINBOW_STOPS.join(',')})` : c.c;
+let showLabels = false;
+function fitName(){
+  const el=$('tName'); if(!el) return; let fs = innerWidth>=900 ? 76 : (innerHeight<700 ? 44 : 58); el.style.fontSize=fs+'px';
+  while(el.scrollWidth>el.clientWidth+1 && fs>15){ fs-=1.5; el.style.fontSize=fs+'px'; }
+}
+addEventListener('resize', ()=>fitName());
+try{ document.fonts && document.fonts.ready.then(()=>fitName()); }catch(e){}
+addEventListener('load', ()=>fitName());
+function renderStage(){
+  $('stage').innerHTML = monster(state, null, {labels:showLabels});
+  $('infoBtn').hidden = !state.legend;
+  const n = nameOf(state).n, sp = n.indexOf(' ');
+  $('tName').innerHTML = jitter(n); requestAnimationFrame(fitName);
+  const col = COLORS.find(c=>c.id===state.color) || COLORS[0], cover = document.querySelector('.cover');
+  cover.classList.toggle('rb', col.c==='rainbow');
+  cover.style.setProperty('--tfill', col.mono ? 'var(--paper)' : (col.c==='rainbow' ? 'transparent' : col.c));
+}
+function renderTabs(){
+  $('tabs').innerHTML = ['color', ...ORDER.filter(k=>k!=='color')].map(k=>{
+    const P = PARTS[k];
+    const icon = k==='color'
+      ? `<span class="sw" style="background:${swatch(COLORS.find(c=>c.id===state.color)||COLORS[0])}"></span>`
+      : monster(state, P.crop, {shadow:false});
+    return `<button class="tab" role="tab" id="tab-${k}" aria-selected="${k===tab}" data-tab="${k}">${icon}<span>${P.label}</span></button>`;
+  }).join('');
+}
+function renderOpts(){
+  requestAnimationFrame(()=>{ const sel=document.querySelector('.opt[aria-pressed="true"]'); if(sel) sel.scrollIntoView({block:'nearest',inline:'center'}); });
+  const P = PARTS[tab];
+  $('optTitle').textContent = P.label;
+  $('opts').innerHTML = P.opts.map(o=>{
+    const st = Object.assign({}, state, {[tab]:o.id});
+    return `<button class="opt" id="opt-${tab}-${o.id}" aria-pressed="${state[tab]===o.id}" data-opt="${o.id}">${monster(st, P.crop, {shadow:false})}<span>${o.label}</span></button>`;
+  }).join('');
+}
+function renderAll(){ renderStage(); renderTabs(); renderOpts(); }
+function popStage(){ const s=$('stage'); s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); }
+
+$('tabs').addEventListener('click', e=>{
+  const b = e.target.closest('[data-tab]'); if(!b) return;
+  tab = b.dataset.tab; blip(); renderTabs(); renderOpts();
+});
+$('opts').addEventListener('click', e=>{
+  const b = e.target.closest('[data-opt]'); if(!b) return;
+  state[tab] = b.dataset.opt; blip(); renderAll(); popStage();
+});
+
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+function randomState(){ const r={}; ORDER.forEach(k=>{ if(k!=='color') r[k]=pick(PARTS[k].opts).id; }); r.color = state.color; return r; }
+let rolling = false;
+$('rand').addEventListener('click', ()=>{
+  if(rolling) return; rolling = true;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const frames = reduce ? 1 : 9; let i = 0;
+  const st = $('stage'); st.classList.add('shake');
+  const step = ()=>{
+    state = randomState(); renderStage(); tone(300+i*60,320+i*60,.05,'square',.05);
+    if(++i < frames) setTimeout(step, 80);
+    else { st.classList.remove('shake'); renderAll(); popStage(); boing(); rolling = false; }
+  };
+  step();
+});
+/* ---------- mostros de leyenda ---------- */
+function openLegends(){
+  $('legends').innerHTML = LEGENDS.map((g,i)=>`<button class="legend" id="leg-${g.id}" data-leg="${i}">${monster(g)}<b>${g.name}</b><small>${g.myth.replace(/^(el|la) /,'').replace(/^./,c=>c.toUpperCase())} · ${g.origin}</small></button>`).join('');
+  $('legSheet').hidden = false; blip();
+}
+function showFicha(id){
+  const g = LEGENDS.find(l=>l.id===id); if(!g) return;
+  $('fichaArt').innerHTML = monster(g); $('fichaName').textContent = g.name;
+  $('fichaMyth').textContent = 'Inspirado en ' + g.myth; $('fichaOrigin').textContent = g.origin; $('fichaText').textContent = g.text;
+  $('fichaSheet').hidden = false; $('fichaClose').focus();
+}
+$('legBtn').addEventListener('click', ()=>{ setMenu(false); openLegends(); });
+$('legClose').addEventListener('click', ()=>{ $('legSheet').hidden = true; });
+$('legSheet').addEventListener('click', e=>{
+  if(e.target===e.currentTarget){ $('legSheet').hidden = true; return; }
+  const b = e.target.closest('[data-leg]'); if(!b) return;
+  const g = LEGENDS[+b.dataset.leg]; state = {}; ORDER.forEach(k=>state[k]=g[k]); state.name = g.name; state.legend = g.id;
+  $('legSheet').hidden = true; renderAll(); popStage(); boing(); setTimeout(()=>showFicha(g.id), 450);
+});
+$('infoBtn').addEventListener('click', ()=>{ showFicha(state.legend); blip(); });
+$('fichaClose').addEventListener('click', ()=>{ $('fichaSheet').hidden = true; });
+$('fichaSheet').addEventListener('click', e=>{ if(e.target===e.currentTarget) $('fichaSheet').hidden = true; });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ $('legSheet').hidden = true; $('fichaSheet').hidden = true; } });
+
+/* ---------- mostros base ---------- */
+function openSheet(){
+  $('presets').innerHTML = PRESETS.map((p,i)=>`<button class="preset" id="preset-${i}" data-preset="${i}">${monster(p)}<span>${p.name}</span><small>${p.note}</small></button>`).join('');
+  $('sheet').hidden = false; blip(); $('preset-0').focus();
+}
+function closeSheet(){ $('sheet').hidden = true; $('presetsBtn').focus(); }
+$('presetsBtn').addEventListener('click', openSheet);
+$('sheetClose').addEventListener('click', closeSheet);
+$('sheet').addEventListener('click', e=>{
+  if(e.target===e.currentTarget){ closeSheet(); return; }
+  const b = e.target.closest('[data-preset]'); if(!b) return;
+  const p = PRESETS[+b.dataset.preset]; state = {}; ORDER.forEach(k=>state[k]=p[k]); state.name = p.name;
+  $('sheet').hidden = true; renderAll(); popStage(); boing();
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('sheet').hidden) closeSheet(); });
+
+/* ---------- nombre editable ---------- */
+function openName(){
+  $('nameBox').hidden = true; $('nameForm').hidden = false;
+  $('nameInput').value = nameOf(state).n.slice(0,20); updCnt(); $('nameInput').focus(); $('nameInput').select();
+}
+function saveName(){
+  if($('nameForm').hidden) return;
+  const v = $('nameInput').value.replace(/\s+/g,' ').trim().slice(0,20);
+  if(v) state.name = v; else delete state.name;
+  $('nameForm').hidden = true; $('nameBox').hidden = false; renderStage(); blip();
+}
+function updCnt(){ const n=$('nameInput').value.length; $('nameCnt').textContent=n+'/20'; $('nameCnt').classList.toggle('full', n>=20); }
+$('nameInput').addEventListener('input', updCnt);
+$('editName').addEventListener('click', openName);
+$('nameForm').addEventListener('submit', e=>{ e.preventDefault(); saveName(); });
+$('nameInput').addEventListener('blur', ()=>setTimeout(saveName, 120));
+
+/* ---------- compartir (link con el mostro adentro) ---------- */
+const SHARE_URL = 'https://claude.ai/artifact/854EQcgPAptEhgYxpNANEM';
+// Link a compartir: si la app está publicada en su propio sitio (ej. GitHub Pages) usa esa dirección.
+function shareLink(){
+  const here = location.protocol.startsWith('http') && !/claude\.(ai|site)|claudeusercontent/.test(location.hostname);
+  const base = here ? location.origin + location.pathname : SHARE_URL;
+  return base + '#' + encodeState(state);
+}
+function shareText(){ return `¡Mirá mi mostro ${nameOf(state).n}!`; }
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }catch(e){}
+  try{ const a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); const ok=document.execCommand('copy'); a.remove(); return ok; }catch(e){ return false; }
+}
+function openShareBox(){
+  const url=shareLink();
+  $('sbWa').href='https://wa.me/?text='+encodeURIComponent(shareText()+' 👉 '+url);
+  $('shareBox').hidden=false;
+}
+$('share').addEventListener('click', async ()=>{
+  blip && blip();
+  const url=shareLink();
+  if(navigator.share){
+    try{ await navigator.share({title:'Mostros Mix', text:shareText(), url}); return; }
+    catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  openShareBox();
+});
+$('sbCopy').addEventListener('click', async ()=>{ const ok=await copyText(shareLink()); $('shareBox').hidden=true; toast(ok?'¡Link copiado!':'No se pudo copiar'); });
+$('sbWa').addEventListener('click', ()=>{ $('shareBox').hidden=true; });
+$('sbClose').addEventListener('click', ()=>{ $('shareBox').hidden=true; });
+$('shareBox').addEventListener('click', e=>{ if(e.target.id==='shareBox') $('shareBox').hidden=true; });
+function encodeState(st){
+  const data = {p:ORDER.map(k=>Math.max(0,PARTS[k].opts.findIndex(o=>o.id===st[k]))), n:st.name||''};
+  const b = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  return 'm' + b.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodeState(tok){
+  try{
+    if(!tok || tok[0]!=='m') return null;
+    let b = tok.slice(1).replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='=';
+    const d = JSON.parse(decodeURIComponent(escape(atob(b))));
+    const st = {}; ORDER.forEach((k,i)=>{ const o = PARTS[k].opts[d.p[i]]; st[k] = o ? o.id : PARTS[k].opts[0].id; });
+    if(d.n) st.name = String(d.n).slice(0,20);
+    return st;
+  }catch(e){ return null; }
+}
+
+
+/* ---------- colección ---------- */
+const KEY = 'mix-de-mostros-coleccion';
+let saved = [];
+try{ saved = JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ saved = []; }
+function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(saved)); }catch(e){} }
+function renderShelf(){
+  $('shelf').innerHTML = saved.length
+    ? saved.map((m,i)=>`<div class="mini"><button data-load="${i}" aria-label="Ver ${nameOf(m).n}">${monster(m)}</button><span>${nameOf(m).n}</span><button class="del" data-del="${i}" aria-label="Sacar de la colección">✕</button></div>`).join('')
+    : '<p class="empty">Todavía no guardaste ninguno. ¡Armá uno y tocá Guardar!</p>';
+}
+$('save').addEventListener('click', ()=>{
+  const key = JSON.stringify(state);
+  if(!saved.some(m=>JSON.stringify(m)===key)){ saved.unshift(Object.assign({},state)); saved = saved.slice(0,30); persist(); renderShelf(); }
+  tone(600,1200,.15,'triangle',.14); setTimeout(()=>tone(900,1500,.15,'triangle',.12),110); popStage();
+});
+$('shelf').addEventListener('click', e=>{
+  const d = e.target.closest('[data-del]');
+  if(d){ saved.splice(+d.dataset.del,1); persist(); renderShelf(); return; }
+  const l = e.target.closest('[data-load]');
+  if(l){ state = Object.assign({}, ORIGINAL, saved[+l.dataset.load]); renderAll(); popStage(); boing(); $('collSheet').hidden=true; }
+});
+$('sound').addEventListener('click', e=>{
+  soundOn = !soundOn; e.currentTarget.setAttribute('aria-pressed', soundOn);
+  e.currentTarget.innerHTML = soundOn ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#fffaf0" stroke="#24213a" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 9 Q18 12 16 15 M18.5 7 Q22 12 18.5 17" fill="none" stroke="#24213a" stroke-width="1.8" stroke-linecap="round"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#fffaf0" stroke="#24213a" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 9 L21 15 M21 9 L16 15" fill="none" stroke="#24213a" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  if(soundOn) blip();
+});
+
+$('labels').addEventListener('click', e=>{ showLabels=!showLabels; e.currentTarget.setAttribute('aria-pressed', showLabels); blip(); renderStage(); });
+/* ---------- menú sandwich, colección y avisos (versión celular) ---------- */
+function setMenu(open){ $('menu').hidden=!open; $('scrim').hidden=!open; $('burger').setAttribute('aria-expanded', open); }
+$('burger').addEventListener('click', ()=>{ setMenu($('menu').hidden); blip(); });
+$('scrim').addEventListener('click', ()=>setMenu(false));
+$('presetsBtn').addEventListener('click', ()=>setMenu(false));
+$('labels').addEventListener('click', ()=>setMenu(false));
+$('collBtn').addEventListener('click', ()=>{ setMenu(false); renderShelf(); $('collSheet').hidden=false; blip(); });
+$('collClose').addEventListener('click', ()=>{ $('collSheet').hidden=true; });
+$('collSheet').addEventListener('click', e=>{ if(e.target===e.currentTarget) $('collSheet').hidden=true; });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ setMenu(false); $('collSheet').hidden=true; } });
+let toastT=0;
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true, 1800); }
+$('save').addEventListener('click', ()=>toast('¡Guardado en tu colección!'));
+document.fonts && document.fonts.ready.then(fitName);
+window.__mostros = {PARTS, ORDER, ORIGINAL, monster, encodeState, decodeState};
+state = decodeState(location.hash.slice(1)) || Object.assign(randomState(), {color: pick(COLORS.filter(c=>!c.mono)).id});
+renderAll(); renderShelf();
+})();
+</script>
