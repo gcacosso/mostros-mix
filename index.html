@@ -72,11 +72,12 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
 
 .stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
 .stage svg{width:100%;height:100%;overflow:visible}
-.bob{animation:bob 2.8s ease-in-out infinite;transform-origin:150px 340px}
+/* solo se anima el mostro grande, como capa ya dibujada (el filtro de lapicera no se recalcula en cada cuadro) */
+.stage>svg{animation:bob 2.8s ease-in-out infinite;transform-origin:50% 92%;will-change:transform}
 @keyframes bob{50%{transform:translateY(-5px) rotate(-1deg)}}
-.pop .bob{animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+.stage.pop>svg{animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
 @keyframes pop{0%{transform:scale(.75,1.18)}60%{transform:scale(1.1,.92)}100%{transform:scale(1)}}
-.shake .bob{animation:shake .14s linear infinite}
+.stage.shake>svg{animation:shake .14s linear infinite}
 @keyframes shake{25%{transform:translateX(-6px) rotate(-3deg)}75%{transform:translateX(6px) rotate(3deg)}}
 
 .actions{flex:none;display:flex;align-items:center;justify-content:center;gap:22px;padding-top:4px}
@@ -177,7 +178,7 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--berry);outline-offs
   #printArea .bob{animation:none!important}
   #printArea .p-foot{font-family:var(--script);font-size:14pt;margin:0}
 }
-@media (prefers-reduced-motion:reduce){.bob,.pop .bob,.shake .bob{animation:none}}
+@media (prefers-reduced-motion:reduce){.stage>svg,.stage.pop>svg,.stage.shake>svg{animation:none}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
